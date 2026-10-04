@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Mohamed Ragab — Master Timetable</title>
+<style>
+  :root {
+    --primary: #1e3a8a;
+    --cs-bg: #ecfdf5;
+    --cs-border: #a7f3d0;
+    --cs-text: #065f46;
+    --pres-bg: #fffbeb;
+    --pres-border: #fde68a;
+    --pres-text: #92400e;
+    --mc-bg: #f0fdf4;
+    --mc-border: #bbf7d0;
+    --mc-text: #166534;
+    --meet-bg: #eff6ff;
+    --meet-border: #bfdbfe;
+    --meet-text: #1e40af;
+    --coach-bg: #f5f3ff;
+    --coach-border: #ddd6fe;
+    --coach-text: #6d28d9;
+    --task-bg: #fdf2f8;
+    --task-border: #fbcfe8;
+    --task-text: #9d174d;
+    --border-color: #cbd5e1;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f8fafc;
+    color: var(--text-main);
+    padding: 16px;
+    line-height: 1.35;
+  }
+
+  .container {
+    max-width: 1740px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+
+  header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+    color: #ffffff;
+    padding: 18px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-titles h1 {
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 3px;
+  }
+
+  .header-titles p {
+    font-size: 13px;
+    opacity: 0.9;
+    font-weight: 400;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: white;
+    padding: 6px 13px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: translateY(-1px);
+  }
+
+  .table-wrapper {
+    overflow-x: auto;
+    padding: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 1480px;
+  }
+
+  th, td {
+    padding: 8px 5px;
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+    text-align: center;
+  }
+
+  th:last-child, td:last-child { border-right: none; }
+  tr:last-child td { border-bottom: none; }
+
+  thead th {
+    background-color: #f1f5f9;
+    font-weight: 700;
+    color: #1e293b;
+    padding: 9px 4px;
+    vertical-align: middle;
+  }
+
+  .th-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .th-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    font-weight: 500;
+    display: block;
+  }
+
+  th.day-col-head {
+    width: 68px;
+    background-color: #e2e8f0;
+    font-size: 13px;
+  }
+
+  td.day-col {
+    background-color: #f1f5f9;
+    font-weight: 800;
+    font-size: 13.5px;
+    color: #1e3a8a;
+    vertical-align: middle;
+    width: 68px;
+  }
+
+  th.break-head {
+    background-color: #fef3c7;
+    color: #78350f;
+  }
+
+  td.break-cell {
+    background-color: #fffdf5;
+  }
+
+  .cell-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 3px;
+    height: 100%;
+    min-height: 84px;
+    padding: 2px;
+    position: relative;
+  }
+
+  .checkbox-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 2px;
+  }
+
+  .cell-checkbox {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    accent-color: #2563eb;
+  }
+
+  .cell-body {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  td.has-cs { background-color: var(--cs-bg); }
+  td.has-presence { background-color: var(--pres-bg); }
+  td.has-mc { background-color: var(--mc-bg); }
+  td.has-meeting { background-color: var(--meet-bg); }
+  td.has-coaching { background-color: var(--coach-bg); }
+  td.has-task { background-color: var(--task-bg); }
+  td.is-free { background-color: #ffffff; }
+
+  .tag {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 8.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .tag-cs { background: #d1fae5; color: var(--cs-text); }
+  .tag-pres { background: #fde68a; color: var(--pres-text); }
+  .tag-mc { background: #dcfce7; color: var(--mc-text); }
+  .tag-meet { background: #dbeafe; color: var(--meet-text); }
+  .tag-coach { background: #ede9fe; color: var(--coach-text); }
+  .tag-task { background: #fce7f3; color: var(--task-text); }
+
+  .subject-name {
+    font-weight: 700;
+    font-size: 11px;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  .meta-class {
+    font-size: 11px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .sub-note {
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-top: 2px;
+    text-align: center;
+  }
+
+  .empty-cell {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 84px;
+  }
+
+  td.completed {
+    opacity: 0.35;
+    filter: grayscale(0.7);
+    background-color: #f1f5f9 !important;
+  }
+
+  td.completed .subject-name,
+  td.completed .meta-class,
+  td.completed .sub-note {
+    text-decoration: line-through;
+  }
+
+  @media print {
+    body { background: #ffffff; padding: 0; }
+    .container { box-shadow: none; border: none; max-width: 100%; }
+    .controls { display: none; }
+    table { min-width: 100%; font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-titles">
+      <h1>Teacher Mohamed Ragab — Master Timetable</h1>
+      <p>Weekly Meetings • Morning Circle &amp; Student Coaching • Computer Science Sessions • Kinderpedia Posting • Updated Meal, Snack &amp; Break Presence</p>
+    </div>
+    <div class="controls">
+      <button class="btn" onclick="checkAll(true)">Check All</button>
+      <button class="btn" onclick="checkAll(false)">Clear All</button>
+      <button class="btn" onclick="window.print()">Print / PDF</button>
+    </div>
+  </header>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th class="day-col-head">Day</th>
+          <th>
+            <span class="th-title">Morning Meeting</span>
+            <span class="th-time">7:45 – 8:20 AM</span>
+          </th>
+          <th>
+            <span class="th-title">Morning Circle</span>
+            <span class="th-time">8:40 – 8:55 AM</span>
+          </th>
+          <th>
+            <span class="th-title">Period 1</span>
+            <span class="th-time">8:55 – 9:35 AM</span>
+          </th>
+          <th>
+            <span class="th-title">Period 2</span>
+            <span class="th-time">9:35 – 10:15 AM</span>
+          </th>
+          <th class="break-head">
+            <span class="th-title">Breakfast 1</span>
+            <span class="th-time">10:15 – 10:35 AM</span>
+          </th>
+          <th class="break-head">
+            <span class="th-title">Breakfast 2</span>
+            <span class="th-time">10:35 – 10:55 AM</span>
+          </th>
+          <th>
+            <span class="th-title">Period 3</span>
+            <span class="th-time">10:55 – 11:40 AM</span>
+          </th>
+          <th>
+            <span class="th-title">Period 4</span>
+            <span class="th-time">11:40 AM – 12:25 PM</span>
+          </th>
+          <th>
+            <span class="th-title">Period 5</span>
+            <span class="th-time">12:25 – 1:10 PM</span>
+          </th>
+          <th class="break-head">
+            <span class="th-title">Lunch 1</span>
+            <span class="th-time">1:10 – 1:30 PM</span>
+          </th>
+          <th class="break-head">
+            <span class="th-title">Lunch 2</span>
+            <span class="th-time">1:30 – 1:50 PM</span>
+          </th>
+          <th>
+            <span class="th-title">Period 6</span>
+            <span class="th-time">1:50 – 2:30 PM</span>
+          </th>
+          <th>
+            <span class="th-title">Period 7</span>
+            <span class="th-time">2:30 – 3:10 PM</span>
+          </th>
+          <th class="break-head">
+            <span class="th-title">Snack</span>
+            <span class="th-time">3:10 – 3:20 PM</span>
+          </th>
+        </tr>
+      </thead>
+      <tbody id="scheduleBody">
+
+        <!-- SUNDAY -->
+        <tr>
+          <td class="day-col">Sunday</td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="has-mc">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-mc">Circle</span>
+                <div class="subject-name">Morning Circle</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Sunday Breakfast 2: Meal Presence MP3E -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Meal Presence</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP2.2G</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP2.2E</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Sunday Lunch 1: Meal Presence MP3E -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Meal Presence</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <!-- Sunday Lunch 2: Break Presence Garden & Bistro -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Break Presence</div>
+                <div class="sub-note" style="color: #92400e;">Garden &amp; Bistro Area L<br>(1:30 – 1:50 PM)</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP2.2G</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Sunday Snack: Snack Presence MP3E -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Snack Presence</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- MONDAY -->
+        <tr>
+          <td class="day-col">Monday</td>
+          <td class="has-meeting">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-meet">Meeting</span>
+                <div class="subject-name">Upper School Meeting</div>
+                <div class="sub-note" style="color: #1e40af;">7:45 – 8:20 AM</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-mc">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-mc">Circle</span>
+                <div class="subject-name">Morning Circle</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-task">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-task">Weekly Task</span>
+                <div class="subject-name" style="color: #9d174d;">Kinderpedia Posting</div>
+                <div class="sub-note" style="color: #9d174d;">Weekly Updates</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Monday Breakfast 1: Break Presence -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Break Presence</div>
+                <div class="sub-note" style="color: #92400e;">The Garden &amp; Strip L<br>(10:15 – 10:35 AM)</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP4y</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Monday Lunch 2: Break Presence -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Break Presence</div>
+                <div class="sub-note" style="color: #92400e;">The Garden &amp; Strip L<br>(1:30 – 1:50 PM)</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP4z</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+        </tr>
+
+        <!-- TUESDAY -->
+        <tr>
+          <td class="day-col">Tuesday</td>
+          <td class="has-meeting">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-meet">Meeting</span>
+                <div class="subject-name">Milepost Meetings</div>
+                <div class="sub-note" style="color: #1e40af;">7:45 – 8:20 AM</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-mc">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-mc">Circle</span>
+                <div class="subject-name">Morning Circle</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Tuesday Breakfast 2: Meal Presence MP3G -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Meal Presence</div>
+                <div class="meta-class">MP3G</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP3G</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Tuesday Lunch 2: Meal Presence MP3G + Break Presence Garden Strip & Basketball L -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Meal Presence: MP3G</div>
+                <div class="sub-note" style="color: #92400e;">Break Presence:<br>Garden Strip &amp; Basketball L<br>(1:30 – 1:50 PM)</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP2.1E</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP2.1G</div>
+              </div>
+            </div>
+          </td>
+          <!-- Tuesday Snack: Snack Presence MP3G -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Snack Presence</div>
+                <div class="meta-class">MP3G</div>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <!-- WEDNESDAY -->
+        <tr>
+          <td class="day-col">Wednesday</td>
+          <td class="has-meeting">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-meet">Meeting</span>
+                <div class="subject-name">Children’s Progress</div>
+                <div class="sub-note" style="color: #1e40af;">7:45 – 8:20 AM</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-mc">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-mc">Circle</span>
+                <div class="subject-name">Morning Circle</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP4z</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Wednesday Lunch 2: Break Presence Garden & Bistro Area L -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Break Presence</div>
+                <div class="sub-note" style="color: #92400e;">Garden &amp; Bistro Area L<br>(1:30 – 1:50 PM)</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP3G</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP2.2E</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+        </tr>
+
+        <!-- THURSDAY -->
+        <tr>
+          <td class="day-col">Thursday</td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="has-mc">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-mc">Circle</span>
+                <div class="subject-name">Morning Circle</div>
+                <div class="meta-class">MP3E</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Thursday Breakfast 2: Meal Presence MP4 -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Meal Presence</div>
+                <div class="meta-class">MP4</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="is-free"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP2.1G</div>
+              </div>
+            </div>
+          </td>
+          <td class="is-free break-cell"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>
+          <!-- Thursday Lunch 2: Meal Presence MP4 -->
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Meal Presence</div>
+                <div class="meta-class">MP4</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP2.1E</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-cs">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-cs">Session</span>
+                <div class="subject-name">Computer Science</div>
+                <div class="meta-class">MP4y</div>
+              </div>
+            </div>
+          </td>
+          <td class="has-presence break-cell">
+            <div class="cell-content">
+              <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+              <div class="cell-body">
+                <span class="tag tag-pres">Presence</span>
+                <div class="subject-name">Snack Presence</div>
+                <div class="meta-class">MP4</div>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  /*
+   * Authoritative schedule update: 20 September 2026.
+   * The renderer below replaces the older timetable rows kept in the file,
+   * making the teaching timetable and both presence rosters easy to maintain.
+   */
+  const FREE = null;
+  const schedule = [
+    {
+      day: 'Sunday',
+      cells: [
+        FREE,
+        { type: 'circle', title: 'Morning Circle', className: 'MP3E' },
+        FREE,
+        FREE,
+        FREE,
+        { type: 'meal', title: 'Meal Presence', className: 'MP4' },
+        { type: 'cs', title: 'Computer Science', className: 'MP2.1G' },
+        { type: 'cs', title: 'Computer Science', className: 'MP2.2E' },
+        { type: 'cs', title: 'Computer Science', className: 'MP2.1E' },
+        { type: 'meal', title: 'Meal Presence', className: 'MP4' },
+        { type: 'duty', title: 'Break Presence', note: 'Garden and Bistro Area L' },
+        { type: 'cs', title: 'Computer Science', className: 'MP2.2G' },
+        FREE,
+        { type: 'meal', title: 'Snack Presence', className: 'MP4' }
+      ]
+    },
+    {
+      day: 'Monday',
+      cells: [
+        { type: 'meeting', title: 'Upper School Meeting', note: '7:45 – 8:20 AM' },
+        { type: 'coaching', title: 'Coaching: Adam Soto', className: 'Student Group: MP3', note: 'Leaves MP3 Circle' },
+        { type: 'task', title: 'Kinderpedia Posting', note: 'Weekly Updates' },
+        FREE,
+        { type: 'duty', title: 'Break Presence', note: 'The Garden and Garden Strip L' },
+        FREE,
+        { type: 'cs', title: 'Computer Science', className: 'MP2.1G' },
+        FREE,
+        { type: 'cs', title: 'Computer Science', className: 'MP4Z' },
+        FREE,
+        { type: 'duty', title: 'Break Presence', note: 'The Garden and Garden Strip L' },
+        { type: 'cs', title: 'Computer Science', className: 'MP4Y' },
+        { type: 'cs', title: 'Computer Science', className: 'MP2.2E' },
+        FREE
+      ]
+    },
+    {
+      day: 'Tuesday',
+      cells: [
+        { type: 'meeting', title: 'Milepost Meetings', note: '7:45 – 8:20 AM' },
+        { type: 'coaching', title: 'Coaching: Yusef Farag', className: 'Student Group: MP4', note: 'Leaves MP3 Circle' },
+        FREE,
+        FREE,
+        FREE,
+        FREE,
+        { type: 'cs', title: 'Computer Science', className: 'MP2.2G' },
+        FREE,
+        { type: 'cs', title: 'Computer Science', className: 'MP3E' },
+        FREE,
+        { type: 'duty', title: 'Break Presence', note: 'Garden Strip and Basketball L' },
+        FREE,
+        FREE,
+        FREE
+      ]
+    },
+    {
+      day: 'Wednesday',
+      cells: [
+        { type: 'meeting', title: 'Children’s Progress', note: '7:45 – 8:20 AM' },
+        { type: 'circle', title: 'Morning Circle', className: 'MP3E' },
+        FREE,
+        FREE,
+        FREE,
+        { type: 'meal', title: 'Meal Presence', className: 'MP3E' },
+        { type: 'cs', title: 'Computer Science', className: 'MP3G' },
+        { type: 'cs', title: 'Computer Science', className: 'MP2.1E' },
+        FREE,
+        { type: 'duty', title: 'Break Presence', note: 'Garden Strip and Basketball L' },
+        { type: 'meal', title: 'Meal Presence', className: 'MP3E' },
+        FREE,
+        { type: 'cs', title: 'Computer Science', className: 'MP4Y' },
+        { type: 'meal', title: 'Snack Presence', className: 'MP3E' }
+      ]
+    },
+    {
+      day: 'Thursday',
+      cells: [
+        FREE,
+        { type: 'circle', title: 'Morning Circle', className: 'MP3E' },
+        FREE,
+        FREE,
+        { type: 'duty', title: 'Break Presence', note: 'Garden Strip and Basketball L' },
+        { type: 'meal', title: 'Meal Presence', className: 'MP3G' },
+        { type: 'cs', title: 'Computer Science', className: 'MP4Z' },
+        { type: 'cs', title: 'Computer Science', className: 'MP3E' },
+        { type: 'cs', title: 'Computer Science', className: 'MP3G' },
+        FREE,
+        { type: 'meal', title: 'Meal Presence', className: 'MP3G' },
+        FREE,
+        FREE,
+        { type: 'meal', title: 'Snack Presence', className: 'MP3G' }
+      ]
+    }
+  ];
+
+  const breakColumns = new Set([4, 5, 9, 10, 13]);
+  const typeStyle = {
+    cs: ['has-cs', 'tag-cs', 'Session'],
+    circle: ['has-mc', 'tag-mc', 'Circle'],
+    coaching: ['has-coaching', 'tag-coach', 'Coaching'],
+    meeting: ['has-meeting', 'tag-meet', 'Meeting'],
+    task: ['has-task', 'tag-task', 'Weekly Task'],
+    meal: ['has-presence', 'tag-pres', 'Presence'],
+    duty: ['has-presence', 'tag-pres', 'Presence'],
+    combo: ['has-presence', 'tag-pres', 'Presence']
+  };
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+
+  function renderCell(item, columnIndex) {
+    const breakClass = breakColumns.has(columnIndex) ? ' break-cell' : '';
+    if (!item) {
+      return `<td class="is-free${breakClass}"><div class="empty-cell"><input type="checkbox" class="cell-checkbox"><span>—</span></div></td>`;
+    }
+
+    const [cellClass, tagClass, tagText] = typeStyle[item.type];
+    const classLine = item.className ? `<div class="meta-class">${escapeHtml(item.className)}</div>` : '';
+    const noteLine = item.note ? `<div class="sub-note">${escapeHtml(item.note)}</div>` : '';
+    return `<td class="${cellClass}${breakClass}">
+      <div class="cell-content">
+        <div class="checkbox-wrapper"><input type="checkbox" class="cell-checkbox"></div>
+        <div class="cell-body">
+          <span class="tag ${tagClass}">${tagText}</span>
+          <div class="subject-name">${escapeHtml(item.title)}</div>
+          ${classLine}${noteLine}
+        </div>
+      </div>
+    </td>`;
+  }
+
+  document.getElementById('scheduleBody').innerHTML = schedule.map(row => `
+    <tr>
+      <td class="day-col">${row.day}</td>
+      ${row.cells.map((cell, index) => renderCell(cell, index)).join('')}
+    </tr>
+  `).join('');
+
+  document.querySelectorAll('.cell-checkbox').forEach(box => {
+    box.addEventListener('change', function() {
+      const td = this.closest('td');
+      if (this.checked) {
+        td.classList.add('completed');
+      } else {
+        td.classList.remove('completed');
+      }
+      saveState();
+    });
+  });
+
+  function checkAll(val) {
+    document.querySelectorAll('.cell-checkbox').forEach(box => {
+      box.checked = val;
+      const td = box.closest('td');
+      if (val) {
+        td.classList.add('completed');
+      } else {
+        td.classList.remove('completed');
+      }
+    });
+    saveState();
+  }
+
+  function saveState() {
+    const states = Array.from(document.querySelectorAll('.cell-checkbox')).map(b => b.checked);
+    try {
+      localStorage.setItem('mr_schedule_2026_10_04_coaching_state', JSON.stringify(states));
+    } catch (e) {}
+  }
+
+  function loadState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('mr_schedule_2026_10_04_coaching_state'));
+      if (saved && Array.isArray(saved)) {
+        const boxes = document.querySelectorAll('.cell-checkbox');
+        boxes.forEach((box, i) => {
+          if (saved[i] !== undefined) {
+            box.checked = saved[i];
+            if (box.checked) box.closest('td').classList.add('completed');
+          }
+        });
+      }
+    } catch (e) {}
+  }
+
+  loadState();
+</script>
+
+</body>
+</html>
